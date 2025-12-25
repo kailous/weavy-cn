@@ -3,6 +3,7 @@
   "name": "Weavy 汉化（基础替换版）",
   "version": "0.1.0",
   "description": "app.weavy.ai/flow 页面 UI 汉化（DOM 监听 + 文本/属性替换）",
+  "permissions": ["contextMenus", "storage", "tabs"],
   "content_scripts": [
     {
       "matches": ["https://app.weavy.ai/*"],
@@ -10,6 +11,9 @@
       "run_at": "document_idle"
     }
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "web_accessible_resources": [
     {
       "resources": ["lang/*.json"],

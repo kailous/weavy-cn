@@ -551,5 +551,18 @@
   "workspace-settings": "工作区设置",
   "yearly": "按年",
   "Your current plan is a personal plan and doesn't support adding additional members. In order to create together, upgrade your plan.": "你当前的套餐是个人版，不支持添加成员。若要协作，请升级你的套餐。",
-  "Your own API keys": "你自己的 API 密钥"
+  "Your own API keys": "你自己的 API 密钥",
+    "Intercom Live Chat": "Intercom 在线聊天",
+  "Intercom live chat": "Intercom 在线聊天",
+  "Intercom messenger": "Intercom 消息",
+  "They'll be added to your conversation": "它们会被添加到你的对话中",
+  "Yes! With the Team plan, you get access to our Credits Management system. Set a monthly default or custom allocation per user, track usage in real time, and stay in control.": "是的！使用团队版即可使用积分管理系统，可为每位成员设置默认或自定义月度额度，实时跟踪使用，保持掌控。",
+  "We're here to help! Reach out to us at": "我们随时为你提供帮助！请通过以下方式联系：",
+  "and our team will get back to you promptly.": "我们的团队会尽快回复你。",
+  "comprehensive model list": "完整模型列表",
+  "Drop files or images here": "将文件或图片拖到这里",
+  "Get This Plan": "选择此套餐",
+  "here": "这里",
+  "in our Trust Center to see commercial rights status for each model.": "在我们的信任中心查看每个模型的商业权益状态。",
+  "support@weavy.ai": "support@weavy.ai"
 }

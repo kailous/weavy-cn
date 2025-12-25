@@ -1,11 +1,15 @@
 (() => {
   'use strict';
 
+  const STORAGE_KEY = 'weavyTranslateEnabled';
   // ✅ 更稳的 raw URL（避免 refs/heads 302 等情况）
   const REMOTE_DICT_URL =
     'https://raw.githubusercontent.com/kailous/weavy-cn/main/lang/weavy-zh.json';
 
   let DICT = new Map();
+  let observer = null;
+  let started = false;
+  let startPromise = null;
 
   function parseDict(data) {
     if (!data || typeof data !== 'object') return null;
@@ -200,7 +204,9 @@
   // 监听 DOM 变化
   // -------------------------
   function observe() {
-    const mo = new MutationObserver(muts => {
+    if (observer) observer.disconnect();
+
+    observer = new MutationObserver(muts => {
       for (const m of muts) {
         if (m.type === 'childList') {
           m.addedNodes.forEach(node => {
@@ -230,16 +236,65 @@
     });
   }
 
-  // -------------------------
-  // 启动
-  // -------------------------
-  (async () => {
-    const ok = await loadDict();
-    if (!ok) return;
+  function stopTranslation() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+    started = false;
+    startPromise = null;
+    console.log('[Weavy汉化] 已关闭');
+  }
 
-    // 初次扫描 + 监听
-    scan(document.body);
-    observe();
-    console.log('[Weavy汉化] 已启动');
+  async function startTranslation() {
+    if (started) return true;
+    if (!startPromise) {
+      startPromise = (async () => {
+        const ok = await loadDict();
+        if (!ok) {
+          startPromise = null;
+          return false;
+        }
+        scan(document.body);
+        observe();
+        started = true;
+        console.log('[Weavy汉化] 已启动');
+        return true;
+      })();
+    }
+    return startPromise;
+  }
+
+  function getEnabled() {
+    return new Promise(resolve => {
+      if (!chrome?.storage?.sync) return resolve(true);
+      chrome.storage.sync.get({ [STORAGE_KEY]: true }, res => {
+        resolve(Boolean(res[STORAGE_KEY]));
+      });
+    });
+  }
+
+  function handleToggle(enabled) {
+    if (enabled) {
+      startTranslation();
+    } else {
+      stopTranslation();
+    }
+  }
+
+  chrome.runtime?.onMessage?.addListener((msg, _sender, sendResponse) => {
+    if (msg?.type === 'weavy-i18n-toggle') {
+      handleToggle(Boolean(msg.enabled));
+      sendResponse?.({ ok: true });
+    }
+  });
+
+  (async () => {
+    const enabled = await getEnabled();
+    if (enabled) {
+      startTranslation();
+    } else {
+      console.log('[Weavy汉化] 已禁用（通过菜单）');
+    }
   })();
 })();
