@@ -264,7 +264,7 @@
   "Files": "文件",
   "first frame": "首帧",
   "Fixed Generation": "固定生成",
-  "fluid": "fluid",
+  "fluid": "流畅 / fluid",
   "Flux 2 Dev LoRA": "Flux 2 Dev LoRA",
   "Flux 2 Flex": "Flux 2 Flex",
   "FLUX 2 LoRA Text-to-Image and Image-to-Image.": "FLUX 2 LoRA 文生图和图生图。",
@@ -903,6 +903,6 @@
   "Your current plan is a personal plan and doesn't support adding additional members. In order to create together, upgrade your plan.": "你当前的套餐是个人版，不支持添加成员。若要协作，请升级你的套餐。",
   "Your own API keys": "你自己的 API 密钥",
   "Z-Depth extractor": "深度图提取器",
-  "zen": "zen",
+  "zen": "简洁 / zen",
   "zen - for smoother, basic, and cleaner results. fluid - the model that adheres best to prompts with great average quality for all kind of images. realism - with a more realistic color palette. IMPORTANT: You should use Zen or Fluid if you are trying to generate something that is really fantastic or a known character, Realism may not follow your prompt well.": "zen - 更平滑、基础、干净；fluid - 最贴合提示，适合各种图像且质量均衡；realism - 更写实的色彩。重要：生成奇幻或已知角色时应使用 Zen 或 Fluid，Realism 可能不太跟提示。"
 }
