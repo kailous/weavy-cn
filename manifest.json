@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Weavy 汉化（基础替换版）",
+  "version": "0.1.0",
+  "description": "app.weavy.ai/flow 页面 UI 汉化（DOM 监听 + 文本/属性替换）",
+  "content_scripts": [
+    {
+      "matches": ["https://app.weavy.ai/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["lang/*.json"],
+      "matches": ["https://app.weavy.ai/*"]
+    }
+  ],
+  "action": {
+    "default_title": "Weavy 汉化"
+  }
+}

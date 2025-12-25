@@ -1,0 +1,37 @@
+{
+  "entries": [
+    { "en": "Share", "zh": "分享" },
+    { "en": "Tasks", "zh": "任务" },
+    { "en": "Run Model", "zh": "运行模型" },
+    { "en": "Run selected", "zh": "运行选中项" },
+    { "en": "Download current", "zh": "下载当前结果" },
+    { "en": "Add another image input", "zh": "添加另一张图片输入" },
+    { "en": "Add more images", "zh": "添加更多图片" },
+    { "en": "Prompt", "zh": "提示词" },
+    { "en": "prompt*", "zh": "提示词*" },
+
+    { "en": "Output File Format", "zh": "输出文件格式" },
+    { "en": "Output SVG Version", "zh": "输出 SVG 版本" },
+    { "en": "Output Draw Style", "zh": "输出绘制风格" },
+    { "en": "Output Shape Stacking", "zh": "输出形状叠放" },
+    { "en": "Output Group By", "zh": "输出分组方式" },
+    { "en": "Allow Cubic Bezier Curves", "zh": "允许三次贝塞尔曲线" },
+    { "en": "Allow Quadratic Bezier Curves", "zh": "允许二次贝塞尔曲线" },
+    { "en": "Allow Circular Arc Curves", "zh": "允许圆弧曲线" },
+    { "en": "Allow Elliptical Arc Curves", "zh": "允许椭圆弧曲线" },
+    { "en": "Gap Filler Enabled", "zh": "启用缝隙填充" },
+    { "en": "Total cost", "zh": "总消耗" },
+    { "en": "credits", "zh": "点数" },
+
+    { "en": "Import", "zh": "导入" },
+    { "en": "Export", "zh": "导出" },
+    { "en": "Preview", "zh": "预览" },
+    { "en": "Toolbox", "zh": "工具箱" },
+    { "en": "Editing", "zh": "编辑" },
+    { "en": "Text tools", "zh": "文字工具" },
+    { "en": "Image Models", "zh": "图像模型" },
+    { "en": "Video Models", "zh": "视频模型" },
+    { "en": "Generate from text", "zh": "文本生成" },
+    { "en": "Generate from image", "zh": "图生图" }
+  ]
+}
