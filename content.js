@@ -1,22 +1,44 @@
 (() => {
   'use strict';
 
+  const REMOTE_DICT_URL = 'https://raw.githubusercontent.com/kailous/weavy-cn/refs/heads/main/lang/weavy-zh.json';
   let DICT = new Map();
 
+  function parseDict(data) {
+    if (!data || typeof data !== 'object') return null;
+    const pairs = Object.entries(data).filter(
+      ([k, v]) => typeof k === 'string' && typeof v === 'string'
+    );
+    return pairs.length ? new Map(pairs) : null;
+  }
+
+  async function fetchDict(url) {
+    const res = await fetch(url, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return parseDict(data);
+  }
+
   async function loadDict() {
-    try {
-      const res = await fetch(chrome.runtime.getURL('lang/weavy-zh.json'));
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data && typeof data === 'object') {
-        const pairs = Object.entries(data).filter(
-          ([k, v]) => typeof k === 'string' && typeof v === 'string'
-        );
-        DICT = new Map(pairs);
+    const sources = [
+      { url: REMOTE_DICT_URL, label: '远程' },
+      { url: chrome.runtime.getURL('lang/weavy-zh.json'), label: '本地' },
+    ];
+
+    for (const src of sources) {
+      try {
+        const map = await fetchDict(src.url);
+        if (map) {
+          DICT = map;
+          console.log(`[Weavy汉化] 已加载${src.label}语言包`);
+          return;
+        }
+      } catch (err) {
+        console.warn(`[Weavy汉化] ${src.label}语言包加载失败：${src.url}`, err);
       }
-    } catch (err) {
-      console.warn('[Weavy汉化] 语言包加载失败，请检查 lang/weavy-zh.json', err);
     }
+
+    console.warn('[Weavy汉化] 语言包加载失败，无法进行翻译');
   }
 
   // 可选：排除输入区域，避免改动用户内容
