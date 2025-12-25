@@ -606,5 +606,20 @@
   "Click to replace": "点击替换",
   "cmd+d": "cmd+d",
   "delete / backspace": "删除/回退",
-  "Lock": "锁定"
+  "Lock": "锁定",
+  "Anyone in your workspace can view": "工作区内任何人可查看",
+  "Anyone with a link can view": "持有链接的任何人可查看",
+  "Copied!": "已复制！",
+  "Copy": "复制",
+  "Copy link": "复制链接",
+  "December 25, 2:48 PM": "12 月 25 日 下午 2:48",
+  "fq-figma@outlook.com": "fq-figma@outlook.com",
+  "Gemini 3（Nano Banana Pro）": "Gemini 3（Nano Banana Pro）",
+  "Invite": "邀请",
+  "Invite others": "邀请其他人",
+  "Only invited people can view": "仅受邀者可查看",
+  "Owner": "所有者",
+  "Who has access": "谁可以访问",
+  "XLabs Flux Dev Controlnet": "XLabs Flux Dev Controlnet",
+  "You": "你"
 }
