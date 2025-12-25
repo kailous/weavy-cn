@@ -621,5 +621,11 @@
   "Owner": "所有者",
   "Who has access": "谁可以访问",
   "XLabs Flux Dev Controlnet": "XLabs Flux Dev Controlnet",
-  "You": "你"
+  "You": "你",
+  "All": "全部",
+  "Download all": "下载全部",
+  "Google's state-of-the-art image generation and editing model": "Google 最先进的图像生成与编辑模型",
+  "Remove all generations": "移除所有生成结果",
+  "Remove all other generations": "移除其他所有生成结果",
+  "Remove current generation": "移除当前生成结果"
 }
