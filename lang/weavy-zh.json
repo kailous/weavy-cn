@@ -689,5 +689,10 @@
   "The highest quality Ideogram v3 model.": "最高质量的 Ideogram v3 模型。",
   "This model is unverified. Your use of this model is subject to its": "此模型未经验证。使用该模型需遵循其",
   "Use this for numeric fields": "用于数字字段",
-  "Image generation and editing with FLUX.2 [flex] from Black Forest Labs. Features adjustable inference steps and guidance scale for fine-tuned control. Enhanced typography and text rendering capabilities.": "使用 Black Forest Labs 的 FLUX.2 [flex] 进行图像生成和编辑，支持可调推理步数和引导强度以实现精细控制，增强排版和文本渲染能力。"
+  "Image generation and editing with FLUX.2 [flex] from Black Forest Labs. Features adjustable inference steps and guidance scale for fine-tuned control. Enhanced typography and text rendering capabilities.": "使用 Black Forest Labs 的 FLUX.2 [flex] 进行图像生成和编辑，支持可调推理步数和引导强度以实现精细控制，增强排版和文本渲染能力。",
+  "Copy of Compositor Node": "合成器节点的副本",
+  "Last edited 60 minutes ago": "60 分钟前编辑",
+  "Weavy credits are your currency for AI generation. Each plan includes a monthly credit allocation that you spend when creating content with different AI models. Different models require different amounts of credits per generation - for example, running Flux costs fewer credits than using Veo. See the full list": "Weavy 积分是你的 AI 生成“货币”。每个套餐都包含月度积分额度，用于调用不同的 AI 模型。不同模型每次生成消耗的积分不同——例如运行 Flux 比使用 Veo 花费更少。查看完整列表",
+  "Absolutely! We offer one of the most advanced commercial rights policies in the industry. Weavy as a platform provides full commercial rights and we never train on your work. Most models available through our platform are cleared for commercial use and don't train on customer data.\nAs an open platform, we also give you access to cutting-edge models that may have different terms. We negotiate the best legal and commercial terms available with all providers for your benefit. For complete transparency, check our": "当然！我们提供业内最先进的商业版权政策之一。作为平台，Weavy 提供完整商业权，并且从不使用你的作品进行训练。平台上的大多数模型已获准商业使用，且不会训练客户数据。\n作为开放平台，我们也提供前沿模型的接入，这些模型的条款可能有所不同。我们会为你与所有提供商争取最佳法律和商业条款。为完全透明，请查看我们的"
+
 }

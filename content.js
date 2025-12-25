@@ -163,6 +163,13 @@
     const trimmed = raw.trim();
     if (!trimmed) return;
 
+    // ✅ 若字典里存在精确 key，直接翻译，不受长度限制
+    if (DICT.has(trimmed)) {
+      const t = DICT.get(trimmed);
+      if (t && t !== trimmed) node.nodeValue = raw.replace(trimmed, t);
+      return;
+    }
+
     // ✅ hover card 允许更长的文本（描述句更长）
     const inHover = isInHoverCard(parent);
     const maxLen = inHover ? 200 : 60;
