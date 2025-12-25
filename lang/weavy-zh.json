@@ -580,5 +580,8 @@
   "Model Name": "模型名称",
   "Name of the model to use": "要使用的模型名称",
   "Temperature": "温度",
-  "Thinking": "思考"
+  "Thinking": "思考",
+  "Are you sure you want to delete this file?": "确定要删除此文件吗？",
+  "Last edited 12 minutes ago": "12 分钟前编辑",
+  "Yes, Delete": "是的，删除"
 }
