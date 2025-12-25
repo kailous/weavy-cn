@@ -8,12 +8,11 @@
       const res = await fetch(chrome.runtime.getURL('lang/weavy-zh.json'));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (Array.isArray(data?.entries)) {
-        DICT = new Map(
-          data.entries
-            .filter(item => item?.en && item?.zh)
-            .map(item => [item.en, item.zh])
+      if (data && typeof data === 'object') {
+        const pairs = Object.entries(data).filter(
+          ([k, v]) => typeof k === 'string' && typeof v === 'string'
         );
+        DICT = new Map(pairs);
       }
     } catch (err) {
       console.warn('[Weavy汉化] 语言包加载失败，请检查 lang/weavy-zh.json', err);
@@ -69,7 +68,7 @@
     const trimmed = raw.trim();
     if (!trimmed) return;
     if (trimmed.length > 60) return;
-    if (/[{}\\[\\]<>]/.test(trimmed)) return;
+    if (/[{}\[\]<>]/.test(trimmed)) return;
 
     const t = translateString(raw);
     if (t !== raw) node.nodeValue = t;
