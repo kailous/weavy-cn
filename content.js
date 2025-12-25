@@ -41,6 +41,14 @@
     console.warn('[Weavy汉化] 语言包加载失败，无法进行翻译');
   }
 
+  function isModelHoverCard(el) {
+    if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
+    const text = el.innerText || '';
+    if (text.includes('Generate a') && text.includes('based on')) return true;
+    if (text.includes('From') && text.includes('to') && text.length < 200) return true;
+    return false;
+  }
+
   // 可选：排除输入区域，避免改动用户内容
   const EXCLUDE_SELECTOR = [
     'textarea',
@@ -111,8 +119,15 @@
       for (const m of muts) {
         if (m.type === 'childList') {
           m.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) scan(node);
-            else if (node.nodeType === Node.TEXT_NODE) translateTextNode(node);
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              if (isModelHoverCard(node)) {
+                scan(node);
+                return;
+              }
+              scan(node);
+            } else if (node.nodeType === Node.TEXT_NODE) {
+              translateTextNode(node);
+            }
           });
         } else if (m.type === 'attributes' && m.target) {
           translateAttrs(m.target);

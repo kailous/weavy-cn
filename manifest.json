@@ -16,6 +16,9 @@
       "matches": ["https://app.weavy.ai/*"]
     }
   ],
+  "host_permissions": [
+    "https://raw.githubusercontent.com/*"
+  ],
   "action": {
     "default_title": "Weavy 汉化"
   }
