@@ -689,5 +689,5 @@
   "The highest quality Ideogram v3 model.": "最高质量的 Ideogram v3 模型。",
   "This model is unverified. Your use of this model is subject to its": "此模型未经验证。使用该模型需遵循其",
   "Use this for numeric fields": "用于数字字段",
-  "Image generation and editing with FLUX.2 [flex] from Black Forest Labs. Features adjustable inference steps and guidance scale for fine-tuned control. Enhanced typography and text rendering capabilities.": "使用 FLUX.2 [flex] 从 Black Forest Labs 进行图像生成与编辑。 特征可调整的推理步骤和指导比例，用于微调控制。 增强的字体和文本渲染能力。"
+  "Image generation and editing with FLUX.2 [flex] from Black Forest Labs. Features adjustable inference steps and guidance scale for fine-tuned control. Enhanced typography and text rendering capabilities.": "使用 Black Forest Labs 的 FLUX.2 [flex] 进行图像生成和编辑，支持可调推理步数和引导强度以实现精细控制，增强排版和文本渲染能力。"
 }
