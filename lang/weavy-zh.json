@@ -293,7 +293,7 @@
 "Edge from 7a3773c7-54c2-4636-b80e-c3888c6d3578 to f37dbda7-4020-4511-ac70-14f197b30d65": "连线：7a3773c7… → f37dbda7…",
 
 "Describe your request from the model": "描述你希望模型完成的需求",
-"Describe the purpose of the model (e.g "you are a prompt generator")": "描述模型的用途（例如“你是一个提示词生成器”）",
+"Describe the purpose of the model (e.g: \"you are a prompt generator\")": "描述模型的用途（例如：“你是一个提示词生成器”）",
 "Image to analyse": "要分析的图片",
 "Description of the edits you want to make": "描述你想要进行的编辑",
 "The image you want to edit": "你要编辑的图片",
