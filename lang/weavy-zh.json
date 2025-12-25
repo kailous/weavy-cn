@@ -145,5 +145,38 @@
 "Supports": "支持",
 "Does not support": "不支持",
 "Required": "必需",
-"Optional": "可选"
+"Optional": "可选",
+"Any LLM": "任意大语言模型",
+"Show more": "展开更多",
+
+"system prompt": "系统提示词",
+"image": "图片",
+"image*": "图片*",
+"result": "结果",
+"text": "文本",
+"output draw style": "输出绘制风格",
+"Options": "选项",
+"nodes": "节点",
+
+"Navigate": "导航",
+"Pan": "平移",
+
+"Runs": "运行次数",
+"Runs nodes": "运行节点",
+"运行选中项 nodes": "运行选中项节点",
+
+"Curves Line Fit Tolerance": "曲线拟合容差",
+"Gap Filler Stroke Width": "缝隙填充描边宽度",
+
+"Output Size Width": "输出尺寸宽度",
+"Output Size Height": "输出尺寸高度",
+"Output Size Unit": "输出尺寸单位",
+
+"Back to files": "返回文件列表",
+"Create new file": "新建文件",
+"Duplicate file": "复制文件",
+"Share file": "分享文件",
+"Preferences": "偏好设置",
+
+"Press enter or space to select a node. Press delete to remove it and escape to cancel. Press enter or space to select an edge. You can then press delete to remove it or escape to cancel.": "按 Enter 或空格选择节点。按 Delete 删除，按 Esc 取消。按 Enter 或空格选择连线后，也可按 Delete 删除或按 Esc 取消。"
 }
