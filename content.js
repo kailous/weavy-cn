@@ -227,7 +227,7 @@
       }
     });
 
-    mo.observe(document.documentElement, {
+    observer.observe(document.documentElement, {
       subtree: true,
       childList: true,
       attributes: true,

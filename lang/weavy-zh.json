@@ -552,7 +552,7 @@
   "yearly": "按年",
   "Your current plan is a personal plan and doesn't support adding additional members. In order to create together, upgrade your plan.": "你当前的套餐是个人版，不支持添加成员。若要协作，请升级你的套餐。",
   "Your own API keys": "你自己的 API 密钥",
-    "Intercom Live Chat": "Intercom 在线聊天",
+  "Intercom Live Chat": "Intercom 在线聊天",
   "Intercom live chat": "Intercom 在线聊天",
   "Intercom messenger": "Intercom 消息",
   "They'll be added to your conversation": "它们会被添加到你的对话中",
@@ -564,5 +564,10 @@
   "Get This Plan": "选择此套餐",
   "here": "这里",
   "in our Trust Center to see commercial rights status for each model.": "在我们的信任中心查看每个模型的商业权益状态。",
-  "support@weavy.ai": "support@weavy.ai"
+  "support@weavy.ai": "support@weavy.ai",
+  "Weavy credits are your currency for AI generation. Each plan includes a monthly credit allocation that you spend when creating content with different AI models. Different models require different amounts of credits per generation - for example, running Flux costs fewer credits than using Veo. See the full list of models and their credits requirements in our Trust Center.": "Weavy 积分是你在使用 AI 生成内容时的货币。每个套餐包括一个每月的积分分配，你在创建内容时需要消耗这些积分。不同的模型需要不同数量的积分 - 例如，运行 Flux 所需的积分 fewer than using Veo。查看完整模型列表及其积分需求，请在我们的信任中心查看。",
+  "For paid plans (Starter, Professional, and Team), you can purchase additional credits at $10 per 1,000 credits (Starter) or $10 per 1,200 credits (Professional and Team). These topped-up credits roll over for 12 months, giving you flexibility beyond your monthly allocation. The Free plan doesn't offer credit top-ups.": "对于付费套餐（入门版、专业版和团队版），你可以每月购买额外的 1,000 积分（入门版）或 1,200 积分（专业版和团队版）。这些额外积分每月都可以使用，且会在 12 个月内自动结转。免费套餐不提供积分 topped-up。",
+  "If you’re on a Professional or Team plan, your base monthly credits roll over to the next month - as long as your subscription stays active. You can accumulate up to 3x your monthly credit amount. After that, any unused credits above the limit will expire. Starter and Free plans don’t include rollover. Any additional credits purchased through top-ups continue to roll over for 12 months from the purchase date.": "如果您在专业版或团队版套餐上，您的基础月度积分会自动结转至下一个月 - 只要您的订阅保持活动状态。您最多可以累计 3 倍您的月度积分。超过此限制的未使用积分将过期。入门版和免费版套餐不包括积分结转。通过 topped-up 购买的额外积分从购买日期开始，会在 12 个月内自动结转。",
+  "Absolutely! We offer one of the most advanced commercial rights policies in the industry. Weavy as a platform provides full commercial rights and we never train on your work. Most models available through our platform are cleared for commercial use and don't train on customer data.\nAs an open platform, we also give you access to cutting-edge models that may have different terms. We negotiate the best legal and commercial terms available with all providers for your benefit. For complete transparency, check our ": "当然可以！我们提供业内最先进的商业使用权政策之一。作为平台，Weavy 为你提供完整的商业使用权，并且绝不会使用你的作品进行模型训练。我们平台上提供的大多数模型都已明确支持商业用途，且不会使用客户数据进行训练。\n作为一个开放平台，我们也为你接入了一些前沿模型，这些模型可能具有不同的使用条款。我们会代表你与所有模型提供方协商并争取最有利的法律与商业条款。为确保完全透明，请查看我们的 ",
+  " in our Trust Center to see commercial rights status for each model.": "在我们的信任中心查看每个模型的商业权益状态。"
 }
