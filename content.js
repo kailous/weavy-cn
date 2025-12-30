@@ -7,6 +7,7 @@
     'https://raw.githubusercontent.com/kailous/weavy-cn/main/lang/weavy-zh.json';
 
   let DICT = new Map();
+  let PATTERN_RULES = [];
   let observer = null;
   let started = false;
   let startPromise = null;
@@ -41,6 +42,7 @@
         const map = await fetchDict(src.url);
         if (map) {
           DICT = map;
+          buildPatternRules();
           console.log(`[Weavy汉化] 已加载${src.label}语言包`, src.url);
           return true;
         }
@@ -99,6 +101,35 @@
   }
 
   /**
+   * 将包含 %d 占位符的词条编译成正则，支持诸如
+   * "Last edited %d days ago" -> /^Last\ edited\ (\d+)\ days\ ago$/
+   * 以便动态数字也能匹配到简化后的字典键。
+   */
+  function buildPatternRules() {
+    PATTERN_RULES = [];
+    for (const [en, zh] of DICT) {
+      if (!en.includes('%d')) continue;
+      const source = '^' + escapeRegExp(en).replace(/%d/g, '(\\d+)') + '$';
+      try {
+        PATTERN_RULES.push({ re: new RegExp(source), tmpl: zh });
+      } catch (err) {
+        console.warn('[Weavy汉化] 占位符模式编译失败：', en, err);
+      }
+    }
+  }
+
+  function applyPatternRules(str) {
+    for (const { re, tmpl } of PATTERN_RULES) {
+      const m = str.match(re);
+      if (m) {
+        let i = 1;
+        return tmpl.replace(/%d/g, () => m[i++] ?? '');
+      }
+    }
+    return null;
+  }
+
+  /**
    * ✅ 策略：
    * 1) 完全匹配：直接返回（最安全、不会叠加）
    * 2) 包含替换：只允许“长短语”，且词边界匹配，并且如果已有 zh 就不再替换
@@ -113,6 +144,10 @@
     // 1) 完全匹配（直接返回，避免 replace 引起的二次变化）
     const exact = DICT.get(s);
     if (exact) return exact;
+
+    // 1.5) 占位符匹配（如 Last edited %d minutes ago）
+    const dyn = applyPatternRules(s);
+    if (dyn) return dyn;
 
     // 2) 包含替换（谨慎）
     let out = str;
@@ -167,6 +202,13 @@
     if (DICT.has(trimmed)) {
       const t = DICT.get(trimmed);
       if (t && t !== trimmed) node.nodeValue = raw.replace(trimmed, t);
+      return;
+    }
+
+    // 占位符匹配（如 Last edited %d minutes ago）
+    const dyn = applyPatternRules(trimmed);
+    if (dyn && dyn !== trimmed) {
+      node.nodeValue = raw.replace(trimmed, dyn);
       return;
     }
 
