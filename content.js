@@ -4,7 +4,7 @@
   const STORAGE_KEY = 'weavyTranslateEnabled';
   // ✅ 更稳的 raw URL（避免 refs/heads 302 等情况）
   const REMOTE_DICT_URL =
-    'https://raw.githubusercontent.com/kailous/weavy-cn/main/lang/weavy-zh.json';
+    'https://raw.githubusercontent.com/kailous/weavy-cn/main/lang/weavy-zh--.json';
 
   let DICT = new Map();
   let PATTERN_RULES = [];
@@ -102,14 +102,18 @@
 
   /**
    * 将包含 %d 占位符的词条编译成正则，支持诸如
-   * "Last edited %d days ago" -> /^Last\ edited\ (\d+)\ days\ ago$/
+   * "Last edited %d days ago" -> /^Last\ edited\ ([0-9][0-9,]*(?:\.[0-9]+)?)\ days\ ago$/
    * 以便动态数字也能匹配到简化后的字典键。
    */
   function buildPatternRules() {
     PATTERN_RULES = [];
+    const NUM_CAPTURE = '([0-9][0-9,]*(?:\\.[0-9]+)?)';
     for (const [en, zh] of DICT) {
       if (!en.includes('%d')) continue;
-      const source = '^' + escapeRegExp(en).replace(/%d/g, '(\\d+)') + '$';
+      // 允许数字中带逗号/小数，并放宽空格（含不间断空格）
+      let source = escapeRegExp(en).replace(/%d/g, NUM_CAPTURE);
+      source = source.replace(/\\ /g, '\\s+');
+      source = '^' + source + '$';
       try {
         PATTERN_RULES.push({ re: new RegExp(source), tmpl: zh });
       } catch (err) {
