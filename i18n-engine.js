@@ -143,7 +143,14 @@
       const key = text.trim();
       if (!key) return false;
       const translated = this.translateString(key);
-      return translated !== key;
+      if (translated !== key) return true;
+
+      // 额外检查：是否存在仅大小写不同的已翻译项（用于去重采集）
+      const lowerKey = key.toLowerCase();
+      for (const k of this.dict.keys()) {
+        if (k.toLowerCase() === lowerKey) return true;
+      }
+      return false;
     }
 
     // ---------- DOM 翻译 ----------

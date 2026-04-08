@@ -34,8 +34,9 @@ function readJson(file) {
 function writeJson(file, data) {
   const sorted = Object.keys(data)
     .sort((a, b) => a.localeCompare(b))
-    .reduce((acc, key) => {
-      acc[key] = data[key];
+    .reduce((acc, rawKey) => {
+      const key = rawKey.trim();
+      if (key) acc[key] = data[rawKey];
       return acc;
     }, {});
 
@@ -93,16 +94,21 @@ function cmdDiff() {
   let removedDup = 0;
   let removedJunk = 0;
 
-  for (const [key, value] of Object.entries(newDict)) {
-    // 已存在于主字典中
+  for (const [rawKey, value] of Object.entries(newDict)) {
+    const key = rawKey.trim();
+    if (!key) {
+      removedDup++;
+      continue;
+    }
+
+    // 已存在于主字典中 (严格精确匹配)
     if (Object.prototype.hasOwnProperty.call(baseDict, key)) {
       removedDup++;
       continue;
     }
 
     // 过滤明显不需要翻译的条目
-    const k = key.trim();
-    if (isJunkEntry(k)) {
+    if (isJunkEntry(key)) {
       removedJunk++;
       continue;
     }
@@ -235,6 +241,25 @@ function cmdStats() {
   // 检查含 %d 占位符的条目
   const patternKeys = baseKeys.filter((k) => k.includes('%d'));
   console.log(`   占位符模式条目: ${patternKeys.length}`);
+
+  // 检查词库中仅大小写不同的潜在冲突项
+  const lowerMap = new Map();
+  const caseDiffs = [];
+  for (const k of baseKeys) {
+    const lk = k.toLowerCase();
+    if (lowerMap.has(lk)) {
+      caseDiffs.push([lowerMap.get(lk), k]);
+    } else {
+      lowerMap.set(lk, k);
+    }
+  }
+  if (caseDiffs.length > 0) {
+    console.log(`\n⚠️  发现 ${caseDiffs.length} 组仅大小写不同的词条 (可能会导致识别混淆):`);
+    caseDiffs.slice(0, 5).forEach(([a, b]) => {
+      console.log(`   - "${a}" vs "${b}"`);
+    });
+    if (caseDiffs.length > 5) console.log(`   ...等更多`);
+  }
 
   // 检查 new.json
   if (fs.existsSync(newFile)) {

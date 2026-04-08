@@ -51,22 +51,7 @@
     const engine = getEngine();
     if (!engine?.loaded) return false;
 
-    // 精确匹配
-    if (engine.dict.has(key)) {
-      translatedCache.add(key);
-      return true;
-    }
-
-    // 占位符模式匹配
-    const dyn = engine.applyPatternRules(key);
-    if (dyn !== null) {
-      translatedCache.add(key);
-      return true;
-    }
-
-    // 完整 translateString 检查（含包含替换）
-    const translated = engine.translateString(key);
-    if (translated !== key) {
+    if (engine.isAlreadyTranslated(key)) {
       translatedCache.add(key);
       return true;
     }
@@ -95,8 +80,8 @@
     if (!/[A-Za-z]/.test(t)) return false;
     // 排除纯数字/尺寸/符号
     if (/^[\d\s./:%+-]+$/.test(t)) return false;
-    // 排除代码/JSON/标签
-    if (/[{}\[\]<>`$]/.test(t)) return false;
+    // 排除代码/JSON/标签 (允许 [] 括号)
+    if (/[{}<>`$]/.test(t)) return false;
     // 排除 URL
     if (/^https?:\/\//i.test(t)) return false;
 
