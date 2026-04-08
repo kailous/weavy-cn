@@ -31,6 +31,17 @@ jobs:
           zip -r $ZIP_NAME . -x "*.git*" "tools/*" "lang/new.json" "lang/*backup.json" ".gitignore" "agent.md" ".github/*" "README.md"
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
+      - name: Extract Changelog Section
+        run: |
+          # 提取 CHANGELOG.md 中对应版本的内容
+          # 从 ## [VERSION] 开始，到下一个 ## [ 结束
+          awk "/## \[${{ env.VERSION }}\]/{flag=1;next}/## \[/{flag=0}flag" CHANGELOG.md > release_body.txt
+          
+          # 如果提取内容为空，写入默认提示
+          if [ ! -s release_body.txt ]; then
+            echo "详情请参考 CHANGELOG.md" > release_body.txt
+          fi
+
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
@@ -40,16 +51,6 @@ jobs:
           draft: false
           prerelease: false
           files: ${{ env.ZIP_NAME }}
-          body: |
-            ## Weavy 汉化 v${{ env.VERSION }}
-            
-            自动生成的发行版本。
-            
-            ### 变更日志
-            - 基于 manifest.json 版本更新自动打包
-            - 包含最新的 SWR 缓存机制与字典更新
-            
-            ### 安装说明
-            下载下方 ZIP 文件，在 Chrome 开发者模式下加载即可。
+          body_path: release_body.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
