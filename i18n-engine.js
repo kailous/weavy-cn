@@ -30,63 +30,11 @@
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
-  // ========== Trie 前缀树 ==========
-  class TrieNode {
-    constructor() {
-      this.children = new Map();
-      this.entries = []; // 存到达此节点的完整 [en, zh] 词条
-    }
-  }
-
-  class Trie {
-    constructor() {
-      this.root = new TrieNode();
-    }
-
-    insert(en, zh) {
-      let node = this.root;
-      // 只用前 6 个字符建索引（与最短包含替换阈值一致）
-      const prefix = en.slice(0, 6).toLowerCase();
-      for (const ch of prefix) {
-        if (!node.children.has(ch)) {
-          node.children.set(ch, new TrieNode());
-        }
-        node = node.children.get(ch);
-      }
-      node.entries.push([en, zh]);
-    }
-
-    /**
-     * 找出所有可能匹配 text 中某子串的词条
-     * 对 text 的每个位置尝试前缀匹配
-     */
-    findCandidates(text) {
-      const result = [];
-      const lower = text.toLowerCase();
-      for (let i = 0; i < lower.length; i++) {
-        let node = this.root;
-        for (let j = i; j < Math.min(i + 6, lower.length); j++) {
-          const ch = lower[j];
-          if (!node.children.has(ch)) break;
-          node = node.children.get(ch);
-          if (node.entries.length > 0) {
-            for (const entry of node.entries) {
-              result.push(entry);
-            }
-          }
-        }
-      }
-      return result;
-    }
-  }
-
   // ========== 翻译引擎 ==========
   class I18nEngine {
     constructor() {
       this.dict = new Map();
       this.patternRules = [];
-      this.trie = new Trie();
-      this.regexCache = new Map(); // en -> compiled RegExp
       this.loaded = false;
     }
 
@@ -123,22 +71,9 @@
       }
     }
 
-    buildTrie() {
-      this.trie = new Trie();
-      this.regexCache.clear();
-      for (const [en, zh] of this.dict) {
-        if (en.length < 6) continue; // 短词不做包含替换
-        if (en.includes('%d')) continue; // 占位符词条单独处理
-        this.trie.insert(en, zh);
-        // 预编译正则
-        this.regexCache.set(en, new RegExp(`\\b${escapeRegExp(en)}\\b`, 'g'));
-      }
-    }
-
     setDict(map) {
       this.dict = map;
       this.buildPatternRules();
-      this.buildTrie();
       this.loaded = true;
     }
 
@@ -194,34 +129,13 @@
 
       // 1) 完全匹配
       const exact = this.dict.get(s);
-      if (exact) return exact;
+      if (exact) return str.replace(s, exact);
 
-      // 2) 占位符匹配
+      // 2) 占位符匹配（使用正则 ^...$ 保证整体匹配）
       const dyn = this.applyPatternRules(s);
-      if (dyn) return dyn;
+      if (dyn) return str.replace(s, dyn);
 
-      // 3) 包含替换（Trie 优化）
-      let out = str;
-      const candidates = this.trie.findCandidates(out);
-
-      // 去重
-      const seen = new Set();
-      for (const [en, zh] of candidates) {
-        if (seen.has(en)) continue;
-        seen.add(en);
-        // 已经包含目标中文，跳过（防叠加）
-        if (out.includes(zh)) continue;
-        const re = this.regexCache.get(en);
-        if (re) {
-          re.lastIndex = 0; // 重置 global regex 状态
-          if (re.test(out)) {
-            re.lastIndex = 0;
-            out = out.replace(re, zh);
-          }
-        }
-      }
-
-      return out;
+      return str;
     }
 
     isAlreadyTranslated(text) {
@@ -244,7 +158,7 @@
       }
     }
 
-    translateTextNode(node, maxLen = 60) {
+    translateTextNode(node) {
       if (!node || node.nodeType !== Node.TEXT_NODE) return;
       const parent = node.parentElement;
       if (!parent) return;
@@ -253,28 +167,6 @@
       if (parent.closest(EXCLUDE_SELECTOR)) return;
 
       const raw = node.nodeValue;
-      if (!raw) return;
-      const trimmed = raw.trim();
-      if (!trimmed) return;
-
-      // 精确匹配（不受长度限制）
-      if (this.dict.has(trimmed)) {
-        const t = this.dict.get(trimmed);
-        if (t && t !== trimmed) node.nodeValue = raw.replace(trimmed, t);
-        return;
-      }
-
-      // 占位符匹配
-      const dyn = this.applyPatternRules(trimmed);
-      if (dyn && dyn !== trimmed) {
-        node.nodeValue = raw.replace(trimmed, dyn);
-        return;
-      }
-
-      // 长度限制
-      if (trimmed.length > maxLen) return;
-      if (/[{}\[\]<>]/.test(trimmed)) return;
-
       const t = this.translateString(raw);
       if (t !== raw) node.nodeValue = t;
     }

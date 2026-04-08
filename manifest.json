@@ -3,7 +3,7 @@
   "name": "Weavy 汉化",
   "version": "0.2.0",
   "description": "app.weavy.ai 页面 UI 全自动汉化（共享引擎 + 防抖 DOM 监听 + Trie 优化查找）",
-  "permissions": ["contextMenus", "storage", "tabs"],
+  "permissions": ["contextMenus", "storage", "tabs", "scripting"],
   "content_scripts": [
     {
       "matches": ["https://app.weavy.ai/*"],
@@ -21,7 +21,8 @@
     }
   ],
   "host_permissions": [
-    "https://raw.githubusercontent.com/*"
+    "https://raw.githubusercontent.com/*",
+    "https://app.weavy.ai/*"
   ],
   "action": {
     "default_title": "Weavy 汉化"

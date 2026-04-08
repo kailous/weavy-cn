@@ -49,6 +49,35 @@ function backup() {
   }
 }
 
+// ========== 垃圾条目过滤 ==========
+
+const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+function isJunkEntry(key) {
+  // 纯 UUID
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key)) return true;
+  // 包含 UUID 的 DOM ID（如 node-menu-trigger-xxx, run-model-button-xxx）
+  if (UUID_RE.test(key)) return true;
+  // 纯尺寸 (1024x1024)
+  if (/^\d+x\d+$/.test(key)) return true;
+  // 纯数字
+  if (/^[\d.]+$/.test(key)) return true;
+  // CSS 类名风格 (kebab-case, 无空格, 含连字符)
+  if (/^[a-z][a-z0-9-]+$/i.test(key) && key.includes('-') && !key.includes(' ')) return true;
+  // sentinel 标记
+  if (/^sentinel/i.test(key)) return true;
+  // 带文件扩展名的文件名
+  if (/\.\w{2,4}$/.test(key) && !key.includes(' ')) return true;
+  // 带文件扩展名的长文件名（含空格但整体像文件名）
+  if (/\.(png|jpg|jpeg|gif|svg|webp|mp4|json|js|css)$/i.test(key)) return true;
+  // simple-tabpanel-* 等内部标签
+  if (/^simple-tabpanel-/i.test(key)) return true;
+  // 邮箱
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) return true;
+
+  return false;
+}
+
 // ========== 子命令 ==========
 
 /**
@@ -73,14 +102,10 @@ function cmdDiff() {
 
     // 过滤明显不需要翻译的条目
     const k = key.trim();
-    if (/^\d+x\d+$/.test(k)) {
+    if (isJunkEntry(k)) {
       removedJunk++;
       continue;
-    } // 纯尺寸如 1024x1024
-    if (/^[\d.]+$/.test(k)) {
-      removedJunk++;
-      continue;
-    } // 纯数字
+    }
 
     filtered[key] = value;
   }
