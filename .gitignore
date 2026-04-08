@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Backups
+lang/*.backup.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Doko
+doko/
+
+# Agent state
+.roomodes

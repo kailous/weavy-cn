@@ -6,157 +6,53 @@
     includeAttrs: true,
     attrs: ['aria-label', 'title', 'placeholder', 'value'],
     minLen: 2,
-    maxLen: 800,                       // ✅ 原来 220，长描述会漏
-    includeHidden: true,               // 抓隐藏元素文字（很多 UI 文案在 aria-only）
-    maxNodes: 250000,                  // 防止卡死
-    maxDepth: 12,                      // shadow/iframe 递归深度
-    excludeSelector: ['textarea', 'input', '[contenteditable="true"]', 'pre', 'code'].join(',')
+    maxLen: 800,
+    includeHidden: true,
+    maxNodes: 250000,
+    maxDepth: 12,
+    excludeSelector: [
+      'textarea',
+      'input',
+      '[contenteditable="true"]',
+      'pre',
+      'code',
+    ].join(','),
   };
 
-  // ✅ 标准 raw URL（更稳）
-  const TRANSLATION_SOURCES = [
-    'https://raw.githubusercontent.com/kailous/weavy-cn/main/lang/weavy-zh--.json', // 预留：新版路径
-    'https://raw.githubusercontent.com/kailous/weavy-cn/main/lang/weavy-zh.json'
-  ];
+  // ---------- 引用共享引擎 ----------
+  const { createDebouncedObserver, escapeRegExp } = window.__WeavyI18n;
+
+  // engine 实例由 content.js 初始化后挂到 window 上
+  // DPex 在 content.js 之后加载，所以可以直接引用
+  function getEngine() {
+    return window.__WeavyI18nInstance;
+  }
 
   // ---------- 内部存储 ----------
   // key -> {count, samples:Set<string>, types:Set<string>}
   const STORE = new Map();
   let scannedNodes = 0;
-  let translationSet = new Set();
-  let translationMap = new Map();
-  let translationPatternRules = [];
-  let translationLoaded = false;
 
-  function escapeRegExp(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  function parseTranslationDict(data) {
-    if (!data || typeof data !== 'object') return null;
-    const pairs = Object.entries(data).filter(
-      ([k, v]) => typeof k === 'string' && typeof v === 'string'
-    );
-    return pairs.length ? new Map(pairs) : null;
-  }
-
-  function buildTranslationPatternRules() {
-    translationPatternRules = [];
-    if (!translationMap.size) return;
-    const NUM_CAPTURE = '([0-9][0-9,]*(?:\\.[0-9]+)?)';
-    for (const [key, tmpl] of translationMap) {
-      if (!key.includes('%d')) continue;
-      let source = escapeRegExp(key).replace(/%d/g, NUM_CAPTURE);
-      source = source.replace(/\\ /g, '\\s+');
-      source = '^' + source + '$';
-      try {
-        translationPatternRules.push({ re: new RegExp(source), tmpl });
-      } catch {}
-    }
-  }
-
-  function applyPatternRules(str) {
-    for (const { re, tmpl } of translationPatternRules) {
-      const m = str.match(re);
-      if (m) {
-        let i = 1;
-        return tmpl.replace(/%d/g, () => m[i++] ?? '');
-      }
-    }
-    return null;
-  }
-
-  function translateString(str) {
-    if (!str || typeof str !== 'string') return str;
-    const s = str.trim();
-    if (!s) return str;
-
-    const exact = translationMap.get(s);
-    if (exact) return exact;
-
-    const dyn = applyPatternRules(s);
-    if (dyn) return dyn;
-
-    let out = str;
-    for (const [en, zh] of translationMap) {
-      if (en.length < 6) continue;
-      if (out.includes(zh)) continue;
-      const re = new RegExp(`\\b${escapeRegExp(en)}\\b`, 'g');
-      if (re.test(out)) out = out.replace(re, zh);
-    }
-    return out;
-  }
-
-  function isAlreadyTranslated(text) {
-    if (!text || typeof text !== 'string') return false;
-    const key = text.trim();
-    if (!key) return false;
-    const translated = translateString(key);
-    return translated !== key;
-  }
-
-  async function loadTranslations() {
-    translationLoaded = false;
-    translationMap = new Map();
-    translationSet = new Set();
-    translationPatternRules = [];
-
-    for (const url of TRANSLATION_SOURCES) {
-      if (!url) continue;
-      try {
-        const res = await fetch(url, { cache: 'no-cache' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        const map = parseTranslationDict(json);
-        if (!map) throw new Error('Invalid translation payload');
-
-        translationMap = map;
-        translationSet = new Set(map.keys());
-        buildTranslationPatternRules();
-        translationLoaded = true;
-        pruneStoreWithTranslations();
-        console.log(`[Deep i18n Extractor] loaded translations: ${translationSet.size} (${url})`);
-        return true;
-      } catch (e) {
-        console.warn('[Deep i18n Extractor] failed to load translations from', url, e);
-      }
-    }
-
-    console.warn('[Deep i18n Extractor] no translation source loaded');
-    return false;
-  }
-
-  function pruneStoreWithTranslations() {
-    if (!translationSet.size && !translationPatternRules.length) return;
-    for (const key of Array.from(STORE.keys())) {
-      if (isAlreadyTranslated(key)) STORE.delete(key);
-    }
-  }
+  // ---------- 过滤与采集 ----------
 
   function looksEnglishUI(s) {
     if (!s || typeof s !== 'string') return false;
     const t = s.trim();
 
     if (t.length < OPT.minLen) return false;
-
-    // ✅ 极端超长（比如粘贴内容/日志）直接跳过，避免卡
     if (t.length > 2000) return false;
-
-    // ✅ 未翻译候选的长度阈值（放宽到 800）
     if (t.length > OPT.maxLen) return false;
 
     // 必须含英文
     if (!/[A-Za-z]/.test(t)) return false;
-
     // 排除纯数字/尺寸/符号
     if (/^[\d\s./:%+-]+$/.test(t)) return false;
-    // 排除明显代码/JSON/标签
-    if (/[{}[\]<>`$]/.test(t)) return false;
+    // 排除代码/JSON/标签
+    if (/[{}\[\]<>`$]/.test(t)) return false;
     // 排除 URL
     if (/^https?:\/\//i.test(t)) return false;
     // 排除 debug
     if (/^Edge from [0-9a-f-]{8,}/i.test(t)) return false;
-
     // 过滤包含中文的条目
     if (/[\u4e00-\u9fff]/.test(t)) return false;
 
@@ -170,9 +66,10 @@
     for (let i = 0; i < 4 && node; i++) {
       let p = node.tagName.toLowerCase();
       if (node.id) p += `#${node.id}`;
-      const cls = (node.className && typeof node.className === 'string')
-        ? node.className.trim().split(/\s+/).slice(0, 2).join('.')
-        : '';
+      const cls =
+        node.className && typeof node.className === 'string'
+          ? node.className.trim().split(/\s+/).slice(0, 2).join('.')
+          : '';
       if (cls) p += `.${cls}`;
       parts.unshift(p);
       node = node.parentElement;
@@ -184,8 +81,9 @@
     if (!looksEnglishUI(text)) return;
     const key = text.trim();
 
-    // ✅ 已翻译的就不再收集
-    if (isAlreadyTranslated(key)) return;
+    // 已翻译的就不再收集
+    const engine = getEngine();
+    if (engine?.loaded && engine.isAlreadyTranslated(key)) return;
 
     if (!STORE.has(key)) {
       STORE.set(key, { count: 0, samples: new Set(), types: new Set() });
@@ -196,12 +94,15 @@
     if (el) row.samples.add(domPath(el));
   }
 
+  // ---------- 扫描 ----------
+
   function scanTextNodes(root) {
     const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         const parent = node.parentElement;
         if (!parent) return NodeFilter.FILTER_REJECT;
-        if (parent.closest(OPT.excludeSelector)) return NodeFilter.FILTER_REJECT;
+        if (parent.closest(OPT.excludeSelector))
+          return NodeFilter.FILTER_REJECT;
 
         if (!OPT.includeHidden) {
           const style = getComputedStyle(parent);
@@ -213,7 +114,7 @@
         const v = node.nodeValue;
         if (!v || !v.trim()) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
-      }
+      },
     });
 
     let n;
@@ -264,12 +165,12 @@
     scanAttrsAndRecurse(root, depth);
   }
 
-  // ---------- 实时监听新增 DOM ----------
+  // ---------- 实时监听新增 DOM（防抖） ----------
   function observe() {
-    const mo = new MutationObserver(muts => {
-      for (const m of muts) {
+    const mo = createDebouncedObserver((mutations) => {
+      for (const m of mutations) {
         if (m.type === 'childList') {
-          m.addedNodes.forEach(node => {
+          m.addedNodes.forEach((node) => {
             if (scannedNodes > OPT.maxNodes) return;
             if (node.nodeType === Node.TEXT_NODE) {
               addHit(node.nodeValue || '', node.parentElement, 'text');
@@ -288,14 +189,14 @@
           addHit(n.nodeValue || '', n.parentElement, 'text');
         }
       }
-    });
+    }, 200);
 
     mo.observe(document.documentElement, {
       subtree: true,
       childList: true,
       attributes: true,
       characterData: true,
-      attributeFilter: OPT.attrs
+      attributeFilter: OPT.attrs,
     });
 
     return mo;
@@ -303,18 +204,21 @@
 
   // ---------- 导出 ----------
   function exportTemplate() {
+    const engine = getEngine();
     const rows = Array.from(STORE.entries())
-      .filter(([key]) => !isAlreadyTranslated(key))
+      .filter(
+        ([key]) => !(engine?.loaded && engine.isAlreadyTranslated(key))
+      )
       .map(([key, v]) => ({
         key,
         count: v.count,
         types: Array.from(v.types),
-        samples: Array.from(v.samples).slice(0, 3)
+        samples: Array.from(v.samples).slice(0, 3),
       }))
       .sort((a, b) => b.count - a.count);
 
     const template = {};
-    for (const r of rows) template[r.key] = "";
+    for (const r of rows) template[r.key] = '';
     return template;
   }
 
@@ -340,7 +244,18 @@
   // ---------- 启动 ----------
   (async () => {
     resetStore();
-    await loadTranslations();      // ✅ 先加载翻译 key，再扫（避免 prune/过滤时序问题）
+    // 等待 content.js 完成引擎初始化
+    const waitForEngine = () =>
+      new Promise((resolve) => {
+        const check = () => {
+          const eng = getEngine();
+          if (eng?.loaded) return resolve();
+          setTimeout(check, 100);
+        };
+        check();
+      });
+
+    await waitForEngine();
     scanDeep(document, 0);
     observe();
     console.log('[Deep i18n Extractor] running');
