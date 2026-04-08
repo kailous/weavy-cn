@@ -1,0 +1,53 @@
+name: Package and Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'manifest.json'
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get Version from manifest.json
+        id: get_version
+        run: |
+          VERSION=$(grep '"version":' manifest.json | head -1 | awk -F '"' '{print $4}')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build Extension ZIP
+        run: |
+          ZIP_NAME="weavy-cn-v${{ env.VERSION }}.zip"
+          # 打包排除： git 目录、开发工具、备份文件、未翻译词条、系统文件等
+          zip -r $ZIP_NAME . -x "*.git*" "tools/*" "lang/new.json" "lang/*backup.json" ".gitignore" "agent.md" ".github/*" "README.md"
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          name: "Weavy 汉化 v${{ env.VERSION }}"
+          draft: false
+          prerelease: false
+          files: ${{ env.ZIP_NAME }}
+          body: |
+            ## Weavy 汉化 v${{ env.VERSION }}
+            
+            自动生成的发行版本。
+            
+            ### 变更日志
+            - 基于 manifest.json 版本更新自动打包
+            - 包含最新的 SWR 缓存机制与字典更新
+            
+            ### 安装说明
+            下载下方 ZIP 文件，在 Chrome 开发者模式下加载即可。
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
