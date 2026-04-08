@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Weavy 汉化",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "app.weavy.ai 页面 UI 全自动汉化（共享引擎 + 防抖 DOM 监听 + Trie 优化查找）",
   "permissions": [
     "contextMenus",
