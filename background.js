@@ -232,6 +232,21 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
       showToast(tabId, txt, 'warning');
     }
   }
+
+  // 接收来自 Popup 面板的开关控制
+  if (msg?.type === 'WEAVY_I18N_POPUP_TOGGLE') {
+    const next = Boolean(msg.enabled);
+    setEnabled(next).then(() => {
+      chrome.contextMenus.update(MENU_ID_TOGGLE, {
+        checked: next,
+        title: next ? '✅ 关闭汉化' : '❌ 开启汉化'
+      });
+      broadcast(next);
+      withActiveWeavyTab(tab => {
+        showToast(tab.id, next ? '汉化已开启' : '汉化已关闭', next ? 'success' : 'info');
+      });
+    });
+  }
 });
 
 chrome.contextMenus.onClicked.addListener(info => {
