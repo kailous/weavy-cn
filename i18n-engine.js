@@ -13,7 +13,7 @@
 
   // ========== 配置 ==========
   const REMOTE_DICT_URL =
-    'https://raw.githubusercontent.com/kailous/weavy-cn/main/lang/weavy-zh.json';
+    'https://kailous.github.io/weavy-cn/lang/weavy-zh.json';
 
   const EXCLUDE_SELECTOR = [
     'textarea',
@@ -48,13 +48,6 @@
       return pairs.length ? new Map(pairs) : null;
     }
 
-    async fetchDict(url) {
-      const res = await fetch(url, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      return this.parseDict(data);
-    }
-
     buildPatternRules() {
       this.patternRules = [];
       const NUM_CAPTURE = '([0-9][0-9,]*(?:\\.[0-9]+)?)';
@@ -72,41 +65,84 @@
     }
 
     setDict(map) {
+      if (!map) return;
       this.dict = map;
       this.buildPatternRules();
       this.loaded = true;
     }
 
-    async loadDict() {
-      const sources = [
-        { url: REMOTE_DICT_URL, label: '远程' },
-        {
-          url:
-            typeof chrome !== 'undefined' && chrome.runtime?.getURL
-              ? chrome.runtime.getURL('lang/weavy-zh.json')
-              : '',
-          label: '本地',
-        },
-      ].filter((s) => s.url);
+    async fetchJson(url) {
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
 
-      for (const src of sources) {
-        try {
-          const map = await this.fetchDict(src.url);
-          if (map) {
-            this.setDict(map);
-            console.log(`[Weavy汉化] 已加载${src.label}语言包`, src.url);
-            return true;
+    async loadDict() {
+      let initialData = null;
+
+      // 1. 尝试从本地持久化缓存读取
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        initialData = await new Promise(resolve => {
+          chrome.storage.local.get('weavy_dict_cache', res => resolve(res.weavy_dict_cache));
+        });
+      }
+
+      // 2. 如果没有缓存，则读取扩展包内默认配置
+      if (!initialData) {
+        const localUrl = typeof chrome !== 'undefined' && chrome.runtime?.getURL
+          ? chrome.runtime.getURL('lang/weavy-zh.json')
+          : '';
+        if (localUrl) {
+          try {
+            initialData = await this.fetchJson(localUrl);
+          } catch(e) {
+            console.warn('[Weavy汉化] 读取本地打包字典失败', e);
           }
-        } catch (err) {
-          console.warn(
-            `[Weavy汉化] ${src.label}语言包加载失败：${src.url}`,
-            err
-          );
         }
       }
 
-      console.warn('[Weavy汉化] 语言包加载失败，无法进行翻译');
-      return false;
+      // 3. 立即应用缓存，确保页面无需等待远端请求即可开始翻译
+      if (initialData) {
+        const map = this.parseDict(initialData);
+        if (map) {
+          this.setDict(map);
+          console.log(`[Weavy汉化] 已加载本地缓存字典，条目数: ${map.size}`);
+        }
+      }
+
+      // 4. 非阻塞异步拉取远端最新字典 (Stale-While-Revalidate)
+      this.fetchRemoteAndUpdateCache(initialData);
+
+      return this.loaded;
+    }
+
+    async fetchRemoteAndUpdateCache(currentData) {
+      try {
+        const remoteData = await this.fetchJson(REMOTE_DICT_URL);
+        
+        // 比较远端和当前的字典条目数
+        const curCount = currentData ? Object.keys(currentData).length : 0;
+        const newCount = Object.keys(remoteData).length;
+
+        // 保存到缓存
+        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+           chrome.storage.local.set({ weavy_dict_cache: remoteData });
+        }
+
+        if (newCount !== curCount) {
+          console.log(`[Weavy汉化] 检测到远端字典更新 (${curCount} -> ${newCount}条)，正在热更新...`);
+          const map = this.parseDict(remoteData);
+          if (map) {
+            this.setDict(map);
+            // 触发全屏重扫，使更新即刻生效
+            if (document.body) this.scan(document.body);
+          }
+        } else {
+          console.log(`[Weavy汉化] 远端字典已是最新。`);
+        }
+      } catch (err) {
+        console.warn('[Weavy汉化] 远端字典拉取失败，继续使用本地缓存:', err);
+      }
     }
 
     // ---------- 翻译核心 ----------
